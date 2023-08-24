@@ -10,6 +10,7 @@ var (
 )
 
 type Environment struct {
+	Constants
 	RunMode                 string `env:"RUN_MODE,required=true"`
 	Port                    int    `env:"PORT,required=true"`
 	CorsAllowOrigins        string `env:"CORS_ALLOW_ORIGINS,required=true"`
@@ -24,6 +25,12 @@ type Environment struct {
 	AccessTokenExpireMinute int    `env:"ACCESS_TOKEN_EXPIRE_MINUTE,required=true"`
 	RefreshTokenSecretKey   string `env:"REFRESH_TOKEN_SECRET_KEY,required=true"`
 	RefreshTokenExpireHour  int    `env:"REFRESH_TOKEN_EXPIRE_HOUR,required=true"`
+	RedisURI                string
+	RedisPassword           string
+	RedisUseSSL             bool `env:"REDIS_USE_SSL,required=true"`
+
+	FrontendUri  string `env:"FRONTEND_URI,required=true"`
+	FrontendPort int    `env:"FRONTEND_PORT,required=true"`
 }
 
 func Load() (*Environment, error) {

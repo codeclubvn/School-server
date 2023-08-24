@@ -20,3 +20,16 @@ type User struct {
 	RecordCreateUserId   string    `gorm:"column:recordcreateuserid__c;varchar(18)"`
 	RecordUpdateUserId   string    `gorm:"column:recordupdateuserid__c;varchar(18)"`
 }
+
+type UserToken struct {
+	Id                 int       `gorm:"column:id;primaryKey;autoIncrement"`
+	UserId             int       `gorm:"column:user_id;index:mmsp_t_heroku_usertoken_i_userid;not null"` //replace: mmsp_m_herokuuser__c_id
+	Token              string    `gorm:"column:token;type:varchar(255);not null"`
+	ExpireAt           time.Time `gorm:"column:expire_at;type:timestamp;not null"` //replace: expiration_time
+	IsDeleted          bool      `gorm:"column:is_deleted"`
+	ResendTime         time.Time `gorm:"column:resend_time;type:timestamp;not null"`    //replace: token_resendable_time
+	RecordCreateUserId string    `gorm:"column:record_create_user_id;type:varchar(18)"` //replace: int
+	RecordCreateTime   time.Time `gorm:"column:record_create_time;autoCreateTime;type:timestamp"`
+	RecordUpdateUserId string    `gorm:"column:record_update_user_id;type:varchar(18)"` //replace: int
+	RecordUpdateTime   time.Time `gorm:"column:record_update_time;autoUpdateTime;type:timestamp"`
+}

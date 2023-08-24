@@ -12,3 +12,7 @@ type BaseModel struct {
 type User struct {
 	internal.User
 }
+
+type UserToken struct {
+	internal.UserToken
+}

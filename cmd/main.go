@@ -1,10 +1,26 @@
-package cmd
+package main
 
 import (
+	"context"
 	"elearning/config"
 	"elearning/infra/mysql"
 	"elearning/infra/mysql/repository"
+	asynq "elearning/infra/queue"
+	"elearning/infra/redis"
+	cachedRepository "elearning/infra/redis/repository"
+	"elearning/middlewares"
 	"elearning/pkg/data"
+	stringPkg "elearning/pkg/hasher"
+	"elearning/routers"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	queueRepository "elearning/infra/queue/repository"
+	jwtPkg "elearning/pkg/jwt"
+	"elearning/usecase/auth"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -13,9 +29,11 @@ import (
 )
 
 type App struct {
-	config   *config.Environment
-	database *mysql.Database
-	logger   *logrus.Entry
+	config        *config.Environment
+	database      *mysql.Database
+	redisDatabase *redis.Database
+	queueClient   *asynq.QueueClient
+	logger        *logrus.Entry
 }
 
 var listEnvSecret = []string{
@@ -50,11 +68,11 @@ func main() {
 	gin.SetMode(cfg.RunMode)
 	loggerStartServer.Infof("System is running with %s mode", cfg.RunMode)
 	// Connect to database
-	db, err := mysql.ConnectPostgresql(cfg)
+	db, err := mysql.ConnectMysql(cfg)
 	if err != nil {
-		loggerStartServer.Fatalf("Connect PostgresSQL Server Failed. Error: %s", err.Error())
+		loggerStartServer.Fatalf("Connect Mysql Server Failed. Error: %s", err.Error())
 	}
-	loggerStartServer.Infof("Connect PostgresSQL Server Successfully")
+	loggerStartServer.Infof("Connect Mysql Server Successfully")
 
 	app := &App{
 		config:   cfg,
@@ -73,9 +91,68 @@ func main() {
 
 	// Service
 	dataService := data.NewDataService()
+	stringService := stringPkg.NewStringService()
+	jwtService := jwtPkg.NewJwtService(app.config)
 
 	// Repository
 	userRepository := repository.NewUserRepository(app.database, dataService)
+	cacheRepository := cachedRepository.NewCacheRepository(app.redisDatabase)
+	userTokenRepository := repository.NewUserTokenRepository(app.database, dataService)
+	queueRepository := queueRepository.NewQueueRepository(app.queueClient)
+	authUseCase := auth.NewAuthUseCase(
+		*app.config,
+		jwtService,
+		stringService,
+		userRepository,
+		cacheRepository,
+		userTokenRepository,
+		queueRepository,
+	)
+
+	middleware := middlewares.NewMiddleware(
+		jwtService,
+		stringService,
+		app.logger,
+		userRepository,
+		*app.config,
+	)
+
+	router := routers.InitRouter(
+		app.config,
+		middleware,
+		authUseCase,
+	)
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", app.config.Port),
+		Handler: router,
+	}
+	done := make(chan bool)
+	go func() {
+		if err := GracefulShutDown(app.config, done, server); err != nil {
+			loggerStartServer.Infof("Stop server shutdown error: %v", err.Error())
+			return
+		}
+		loggerStartServer.Info("Stopped serving on Services")
+	}()
+	loggerStartServer.Infof("Start HTTP Server Successfully")
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		loggerStartServer.Fatalf("Start HTTP Server Failed. Error: %s", err.Error())
+	}
+	<-done
+	loggerStartServer.Infof("Stopped backend application.")
+}
+
+func GracefulShutDown(config *config.Environment, quit chan bool, server *http.Server) error {
+	signals := make(chan os.Signal)
+	signal.Notify(signals, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+	<-signals
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.SystemTimeOutSecond)*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		return err
+	}
+	close(quit)
+	return nil
 }
 
 func initLog() *logrus.Entry {

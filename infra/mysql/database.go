@@ -14,7 +14,7 @@ type Database struct {
 	*gorm.DB
 }
 
-func ConnectPostgresql(cfg *config.Environment) (*Database, error) {
+func ConnectMysql(cfg *config.Environment) (*Database, error) {
 	var db *gorm.DB
 	var err error
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
