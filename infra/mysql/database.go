@@ -17,13 +17,12 @@ type Database struct {
 func ConnectMysql(cfg *config.Environment) (*Database, error) {
 	var db *gorm.DB
 	var err error
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-		cfg.MysqlHost,
-		cfg.MysqlUserName,
-		cfg.MysqlPassword,
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", 
+		cfg.MysqlUserName, 
+		cfg.MysqlPassword, 
+		cfg.MysqlHost, 
+		cfg.MysqlPort,
 		cfg.MysqlDatabase,
-		cfg.Port,
-		cfg.MysqlSSLMode,
 	)
 	for i := 0; i < 3; i++ {
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
