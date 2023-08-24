@@ -12,7 +12,7 @@ type UserRepository interface {
 	Update(id int, user *entity.User) (*entity.User, error)
 	Create(user *entity.User) (*entity.User, error)
 	ChangePassword(id int, password string) error
-	DisableManyUser(ids []int) error
+	DisableManyUser(ids []int, updateById string) error
 	GetBySfId(sfId string) (*entity.User, error)
 	GetUserForManagerInCharge(userId int) ([]*entity.User, error)
 }

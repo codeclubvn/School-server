@@ -44,3 +44,12 @@ func ConnectPostgresql(cfg *config.Environment) (*Database, error) {
 	}
 	return &Database{db}, nil
 }
+
+func (d Database) AutoMigrate() error {
+	if err := addUserTable(d.DB); err != nil {
+		return err
+	}
+	return nil
+
+	//TODO: implement other tables
+}
