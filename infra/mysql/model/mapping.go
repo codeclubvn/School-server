@@ -7,3 +7,7 @@ type Tabler interface {
 func (User) TableName() string {
 	return "school__user"
 }
+
+func (UserToken) TableName() string {
+	return "school__user_token"
+}

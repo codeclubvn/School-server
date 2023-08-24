@@ -12,3 +12,11 @@ func addUserTable(db *gorm.DB) error {
 	}
 	return nil
 }
+
+func addUserTokenTable(db *gorm.DB) error {
+	var err error
+	if err = db.AutoMigrate(&model.UserToken{}); err != nil {
+		return err
+	}
+	return nil
+}
