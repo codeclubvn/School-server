@@ -29,7 +29,7 @@ func (r *userRepository) Create(input *entity.User) (*entity.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	result := r.db.Omit("DefaultSetting").Create(user)
+	result := r.db.Create(user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -94,18 +94,6 @@ func (r *userRepository) GetById(id int) (*entity.User, error) {
 	return result, nil
 }
 
-func (r *userRepository) GetBySfId(sfId string) (*entity.User, error) {
-	user := &model.User{}
-	if err := r.db.Model(&model.User{}).Where("sfid = ?", sfId).First(&user).Error; err != nil {
-		return nil, err
-	}
-	result := &entity.User{}
-	if err := r.dataService.Copy(result, user); err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
 func (r *userRepository) GetByListId(ids []int) ([]*entity.User, error) {
 	var users []*model.User
 	if err := r.db.Model(&model.User{}).
@@ -144,62 +132,6 @@ func (r *userRepository) ListByEmails(email []string) ([]*entity.User, error) {
 	return result, nil
 }
 
-func (r *userRepository) GetBySfIdId(id string) (*entity.User, error) {
-	user := &model.User{}
-	if err := r.db.Model(&model.User{}).Where("sfid = ?", id).
-		Where("status__c = ?", config.StatusActive).
-		First(&user).Error; err != nil {
-		return nil, err
-	}
-	result := &entity.User{}
-	if err := r.dataService.Copy(result, user); err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (r *userRepository) GetByIdWithRole(id int, role string) (*entity.User, error) {
-	user := &model.User{}
-	var query = r.db.Model(&model.User{}).Where("id = ?", id)
-	//var isManager = role == config.ContractManagerEn || role == config.OperationManagerEn
-	//if isManager {
-	query.Preload("DefaultSetting").First(&user)
-	//} else {
-	//	query.First(&user)
-	//}
-	if err := query.Error; err != nil {
-		return nil, err
-	}
-	result := &entity.User{}
-	if err := r.dataService.Copy(result, user); err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (r *userRepository) GetUserForManagerInCharge(userId int) ([]*entity.User, error) {
-	var err error
-	users := []*model.User{}
-	results := []*entity.User{}
-	query := r.db.Distinct("mmsp_m_herokuuser__c.id", "mmsp_m_herokuuser__c.name")
-	if userId > 0 {
-		query.Where("mmsp_m_heroku_my_group_user.mmsp_m_herokuuser__c_id = ? ", userId)
-	}
-	if err = query.Joins("INNER JOIN mmsp_m_heroku_my_group ON mmsp_m_herokuuser__c.id = mmsp_m_heroku_my_group.ownerid").
-		Joins("INNER JOIN mmsp_m_heroku_my_group_user ON mmsp_m_heroku_my_group_user.mmsp_m_heroku_my_group_seq = mmsp_m_heroku_my_group.id").
-		Where("type__c = ?", config.USER).
-		Where("status__c = ?", config.StatusActive).
-		Where("ismiddlemanager__c = ?", true).
-		Where("isproxy__c = ?", false).
-		Find(&users).Error; err != nil {
-		return nil, err
-	}
-	if err := r.dataService.Copy(&results, users); err != nil {
-		return nil, err
-	}
-	return results, nil
-}
-
 func (r *userRepository) UpdateLastLoginAt(id int, input *entity.User) (*entity.User, error) {
 	userData := &model.User{}
 	if err := r.dataService.Copy(userData, input); err != nil {
@@ -224,8 +156,8 @@ func (r *userRepository) DisableManyUser(ids []int, updateById string) error {
 	if err := r.db.Model(&model.User{}).
 		Where("id IN ? ", ids).
 		Updates(map[string]interface{}{
-			"status__c":          config.StatusInactive,
-			"recordupdatemail_e": updateById,
+			"status__c":             config.StatusInactive,
+			"recordupdateuserid__c": updateById,
 		}).Error; err != nil {
 		return err
 	}

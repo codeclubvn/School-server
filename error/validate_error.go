@@ -34,8 +34,6 @@ func CreateErrCodeValidate(ctx context.Context, input interface{}, err error) Er
 			Code: fmt.Sprintf("%s_%s-%s-%s",
 				ErrorTypeValidate,
 				MapCodeValidate[validationError.ActualTag()].Code,
-				ctx.Value("screenId"),
-				ctx.Value("apiOrder"),
 			),
 			Field: field,
 		})
