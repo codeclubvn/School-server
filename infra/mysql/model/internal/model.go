@@ -4,7 +4,7 @@ import "time"
 
 type User struct {
 	Id                   int       `gorm:"column:id;primaryKey;autoIncrement"`
-	Email                string    `gorm:"column:userid__c;type:varchar(80)"`
+	Email                string    `gorm:"column:mail_e;type:varchar(80)"`
 	Type                 string    `gorm:"column:type__c;type:varchar(18)"`
 	Name                 string    `gorm:"column:name;type:varchar(80)"`
 	IsMiddleManager      bool      `gorm:"column:ismiddlemanager__c"`
