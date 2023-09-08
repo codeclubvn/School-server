@@ -22,10 +22,13 @@ import (
 	jwtPkg "elearning/pkg/jwt"
 	"elearning/usecase/auth"
 	"fmt"
+	"reflect"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
-	"reflect"
+
+	docs "elearning/docs"
 )
 
 type App struct {
@@ -64,6 +67,14 @@ func main() {
 			fmt.Printf("EnvKeyAndValue %s: '%v'\n", varName, varValue)
 		}
 	}
+
+	//Swagger 2.0 Meta Information
+	docs.SwaggerInfo.Title = "Elerning API"
+	docs.SwaggerInfo.Description = "This is a elearning server."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.BasePath = ""
+	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	gin.SetMode(cfg.RunMode)
 	loggerStartServer.Infof("System is running with %s mode", cfg.RunMode)

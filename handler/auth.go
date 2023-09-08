@@ -10,6 +10,14 @@ import (
 	"elearning/usecase/auth"
 )
 
+// @Summary Login
+// @Description Login handler
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param login body auth.LoginInput true "Login details"
+// @Success 200 {object} auth.LoginOutput
+// @Router /login [post]
 func Login(c *gin.Context, authUseCase auth.AuthUseCase) {
 	var input auth.LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {

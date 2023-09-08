@@ -7,8 +7,9 @@ import (
 	"elearning/usecase/auth"
 	"elearning/validations"
 	"fmt"
-	"github.com/gin-contrib/cors"
 	"net/http"
+
+	"github.com/gin-contrib/cors"
 
 	"net/http/httputil"
 	"net/url"
@@ -18,6 +19,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 const (
@@ -50,6 +54,10 @@ func InitRouter(
 		MaxAge:           12 * time.Hour,
 	}))
 	router.Use(gin.Recovery())
+
+	// Swagger
+	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// Validations
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("customEmail", validations.CustomEmail)
