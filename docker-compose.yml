@@ -1,34 +1,18 @@
 version: "3.8"
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: app
-    env_file:
-      - .env.docker
-    ports:
-      - 5000:5000
-    volumes:
-      - ./logs/:/root/logs/
-    restart: unless-stopped
-    depends_on:
-      - database
-    networks:
-      - app-tier
-
   database:
     image: mysql:8.0.34-debian
     container_name: database
+    command: "--innodb_use_native_aio=0"
     environment:
-      MYSQL_USER: mysql
-      MYSQL_PASSWORD: mysql
-      MYSQL_DB: school
-      PGDATA: /data/mysql
+      MYSQL_USER: docker
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: school
     volumes:
       - .docker/data/mysql:/data/mysql
     ports:
-      - "5432:5432"
+      - "3306:3306"
     networks:
       - app-tier
     restart: always
@@ -46,6 +30,25 @@ services:
     networks:
       - app-tier
     restart: always
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    env_file:
+      - .env.docker
+    ports:
+      - 5000:5000
+    volumes:
+      - ./logs/:/root/logs/
+    restart: unless-stopped
+    depends_on:
+      - database
+      - redis
+    networks:
+      - app-tier
+
 networks:
   app-tier:
     driver: bridge
