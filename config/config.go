@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+
 	gEnv "github.com/Netflix/go-env"
 )
 
@@ -28,6 +29,13 @@ type Environment struct {
 	RedisURI                string
 	RedisPassword           string
 	RedisUseSSL             bool `env:"REDIS_USE_SSL,required=true"`
+
+	//S3
+	S3ApiKey     string `env:"S3_API_KEY,required=true"`
+	S3BucketName string `env:"S3_BUCKET_NAME,required=true"`
+	S3Domain     string `env:"S3_DOMAIN,required=true"`
+	S3Region     string `env:"S3_REGION,required=true"`
+	S3SecretKey  string `env:"S3_SECRET_KEY,required=true"`
 
 	FrontendUri  string `env:"FRONTEND_URI,required=true"`
 	FrontendPort int    `env:"FRONTEND_PORT,required=true"`
