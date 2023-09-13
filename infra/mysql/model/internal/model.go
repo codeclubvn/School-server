@@ -4,11 +4,9 @@ import "time"
 
 type User struct {
 	Id                   int       `gorm:"column:id;primaryKey;autoIncrement"`
-	Email                string    `gorm:"column:mail_e;type:varchar(80)"`
+	Email                string    `gorm:"column:mail__e;type:varchar(80)"`
 	Type                 string    `gorm:"column:type__c;type:varchar(18)"`
 	Name                 string    `gorm:"column:name;type:varchar(80)"`
-	IsMiddleManager      bool      `gorm:"column:ismiddlemanager__c"`
-	IsProxy              bool      `gorm:"column:isproxy__c"`
 	Password             string    `gorm:"column:password__c;type:varchar(255)"`
 	Status               string    `gorm:"column:status__c"`
 	DepartmentName       string    `gorm:"column:departmentname__c;type:varchar(255)"`
@@ -23,13 +21,13 @@ type User struct {
 
 type UserToken struct {
 	Id                 int       `gorm:"column:id;primaryKey;autoIncrement"`
-	UserId             int       `gorm:"column:user_id;index:mmsp_t_heroku_usertoken_i_userid;not null"` //replace: mmsp_m_herokuuser__c_id
+	UserId             int       `gorm:"column:user_id;index:school_usertoken_i_userid;not null"`
 	Token              string    `gorm:"column:token;type:varchar(255);not null"`
-	ExpireAt           time.Time `gorm:"column:expire_at;type:timestamp;not null"` //replace: expiration_time
+	ExpireAt           time.Time `gorm:"column:expire_at;type:timestamp;not null"`
 	IsDeleted          bool      `gorm:"column:is_deleted"`
-	ResendTime         time.Time `gorm:"column:resend_time;type:timestamp;not null"`    //replace: token_resendable_time
-	RecordCreateUserId string    `gorm:"column:record_create_user_id;type:varchar(18)"` //replace: int
+	ResendTime         time.Time `gorm:"column:resend_time;type:timestamp;not null"`
+	RecordCreateUserId string    `gorm:"column:record_create_user_id;type:varchar(18)"`
 	RecordCreateTime   time.Time `gorm:"column:record_create_time;autoCreateTime;type:timestamp"`
-	RecordUpdateUserId string    `gorm:"column:record_update_user_id;type:varchar(18)"` //replace: int
+	RecordUpdateUserId string    `gorm:"column:record_update_user_id;type:varchar(18)"`
 	RecordUpdateTime   time.Time `gorm:"column:record_update_time;autoUpdateTime;type:timestamp"`
 }

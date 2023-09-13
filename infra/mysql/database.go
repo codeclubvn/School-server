@@ -17,10 +17,10 @@ type Database struct {
 func ConnectMysql(cfg *config.Environment) (*Database, error) {
 	var db *gorm.DB
 	var err error
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", 
-		cfg.MysqlUserName, 
-		cfg.MysqlPassword, 
-		cfg.MysqlHost, 
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		cfg.MysqlUserName,
+		cfg.MysqlPassword,
+		cfg.MysqlHost,
 		cfg.MysqlPort,
 		cfg.MysqlDatabase,
 	)
@@ -48,7 +48,10 @@ func (d Database) AutoMigrate() error {
 	if err := addUserTable(d.DB); err != nil {
 		return err
 	}
-	return nil
 
+	if err := addUserTokenTable(d.DB); err != nil {
+		return err
+	}
+	return nil
 	//TODO: implement other tables
 }

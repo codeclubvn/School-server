@@ -68,7 +68,7 @@ func (r *userRepository) Update(id int, input *entity.User) (*entity.User, error
 func (r *userRepository) GetByEmail(email string) (*entity.User, error) {
 	user := &model.User{}
 	err := r.db.Model(&model.User{}).
-		Where("mail_e = ?", email).
+		Where("mail__e = ?", email).
 		Where("status__c = ?", config.StatusActive).First(&user).Error
 	if err != nil {
 		return nil, err
@@ -118,7 +118,7 @@ func (r *userRepository) GetByListId(ids []int) ([]*entity.User, error) {
 
 func (r *userRepository) ListByEmails(email []string) ([]*entity.User, error) {
 	var users []*model.User
-	if err := r.db.Model(&model.User{}).Where("mail_e IN ?", email).Find(&users).Error; err != nil {
+	if err := r.db.Model(&model.User{}).Where("mail__e IN ?", email).Find(&users).Error; err != nil {
 		return nil, err
 	}
 	var result []*entity.User
@@ -139,7 +139,7 @@ func (r *userRepository) UpdateLastLoginAt(id int, input *entity.User) (*entity.
 	}
 	userData.Id = id
 	//userData.UpdatedAt = input.UpdatedAt.UTC() //TODO: replace by recordupdatetime__c
-	query := r.db.Exec(fmt.Sprintf(`UPDATE "mmsp_m_herokuuser__c" SET "lastlogin_at__c"='%s' WHERE id = %v`, input.LastLoginAt.Format(time.RFC3339), input.Id))
+	query := r.db.Exec(fmt.Sprintf(`UPDATE "school__user" SET "lastlogin_at__c"='%s' WHERE id = %v`, input.LastLoginAt.Format(time.RFC3339), input.Id))
 	if err := query.Error; err != nil {
 		return nil, err
 	}

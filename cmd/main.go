@@ -73,11 +73,18 @@ func main() {
 		loggerStartServer.Fatalf("Connect Mysql Server Failed. Error: %s", err.Error())
 	}
 	loggerStartServer.Infof("Connect Mysql Server Successfully")
+	rDb, err := redis.ConnectRedis(cfg)
+	if err != nil {
+		loggerStartServer.Fatalf("Connect Redis Server Failed. Error: %s", err.Error())
+	}
+	queueClient := asynq.CreateClient(cfg)
 
 	app := &App{
-		config:   cfg,
-		database: db,
-		logger:   logger,
+		config:        cfg,
+		database:      db,
+		logger:        logger,
+		redisDatabase: rDb,
+		queueClient:   queueClient,
 	}
 
 	if app.config.MysqlMigrateMode {
