@@ -25,8 +25,8 @@ type Environment struct {
 	AccessTokenExpireMinute int    `env:"ACCESS_TOKEN_EXPIRE_MINUTE,required=true"`
 	RefreshTokenSecretKey   string `env:"REFRESH_TOKEN_SECRET_KEY,required=true"`
 	RefreshTokenExpireHour  int    `env:"REFRESH_TOKEN_EXPIRE_HOUR,required=true"`
-	RedisURI                string
-	RedisPassword           string
+	RedisURI                string `env:"REDIS_URI,required=true"`
+	RedisPassword           string `env:"REDIS_PASSWORD,required=true"`
 	RedisUseSSL             bool `env:"REDIS_USE_SSL,required=true"`
 
 	FrontendUri  string `env:"FRONTEND_URI,required=true"`
