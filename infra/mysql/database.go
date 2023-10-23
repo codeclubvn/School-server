@@ -3,11 +3,12 @@ package mysql
 import (
 	"elearning/config"
 	"fmt"
+	"math"
+	"time"
+
 	"github.com/pkg/errors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"math"
-	"time"
 )
 
 type Database struct {
@@ -45,11 +46,31 @@ func ConnectMysql(cfg *config.Environment) (*Database, error) {
 }
 
 func (d Database) AutoMigrate() error {
-	if err := addUserTable(d.DB); err != nil {
+	// if err := addUserTable(d.DB); err != nil {
+	// 	return err
+	// }
+	// if err := addUserTokenTable(d.DB); err != nil {
+	// 	return err
+	// }
+	if err := addCourseTable(d.DB); err != nil {
 		return err
 	}
-
-	if err := addUserTokenTable(d.DB); err != nil {
+	if err := addUnitTable(d.DB); err != nil {
+		return err
+	}
+	if err := addAssignmentTable(d.DB); err != nil {
+		return err
+	}
+	if err := addRubricTable(d.DB); err != nil {
+		return err
+	}
+	if err := addRubricCriteriaTable(d.DB); err != nil {
+		return err
+	}
+	if err := addRubricCriteriaRatingTable(d.DB); err != nil {
+		return err
+	}
+	if err := addForeignKey(d.DB); err != nil {
 		return err
 	}
 	return nil
