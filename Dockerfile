@@ -1,4 +1,5 @@
 FROM golang:1.21.0-alpine3.18 as be-builder
+
 ARG BE_PATH
 RUN echo "BE_PATH ${BE_PATH}"
 ENV GO111MODULE=on
@@ -28,9 +29,6 @@ WORKDIR /root/
 
 COPY --from=be-builder /app/app ./
 
-COPY --from=be-builder /app/json ./json
-
-COPY --from=be-builder /app/template ./template
 
 # Run image
 
